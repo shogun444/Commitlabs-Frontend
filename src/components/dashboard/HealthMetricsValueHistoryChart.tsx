@@ -30,6 +30,7 @@ import {
   LIFECYCLE_REF_LINE,
   formatLocaleNumber,
 } from './chartConfig';
+import { downsampleSeries } from '../../utils/downsample';
 
 export interface HealthMetricsValueHistoryChartProps {
   data: Array<{ date: string; currentValue: number; initialAmount?: number }>;
@@ -96,6 +97,10 @@ const HealthMetricsValueHistoryChartComponent: React.FC<HealthMetricsValueHistor
     }));
   }, [data, hasBenchmark, benchmarkByDate]);
 
+  // Bound the rendered point count so SVG/DOM/paint cost stays flat regardless
+  // of how large the backend time-series grows.
+  const boundedData = useMemo(() => downsampleSeries(mergedData), [mergedData]);
+
   const yTickFormatter = useCallback((value: number) => formatLocaleNumber(value), []);
 
   const renderLegend = useCallback(
@@ -130,7 +135,7 @@ const HealthMetricsValueHistoryChartComponent: React.FC<HealthMetricsValueHistor
     <>
       <div className="w-full h-full min-h-[350px] bg-[#111] rounded-xl p-4 sm:p-6 border border-[#222] shadow-sm">
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={mergedData} margin={CHART_MARGIN_DEFAULT}>
+          <LineChart data={boundedData} margin={CHART_MARGIN_DEFAULT}>
             <CartesianGrid {...CHART_GRID_PROPS} />
             <XAxis {...CHART_X_AXIS_PROPS} />
             <YAxis {...CHART_Y_AXIS_PROPS} tickFormatter={yTickFormatter} />

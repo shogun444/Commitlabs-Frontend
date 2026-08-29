@@ -6,6 +6,7 @@ import { createCorsOptionsHandler, type CorsRoutePolicy } from '@/lib/backend/co
 import { TooManyRequestsError, ValidationError } from '@/lib/backend/errors';
 import { getClientIp } from '@/lib/backend/getClientIp';
 import { parseJsonWithLimit, JSON_BODY_LIMITS } from '@/lib/backend/jsonBodyLimit';
+import { MAX_PAGE_SIZE } from '@/lib/backend/pagination';
 import { checkRateLimit, getRateLimitWindowSeconds } from '@/lib/backend/rateLimit';
 import {
   getMarketplaceSortKeys,
@@ -65,12 +66,22 @@ function parseNumber(searchParams: URLSearchParams, key: string): number | undef
   return parsed;
 }
 
-function parseInteger(searchParams: URLSearchParams, key: string, defaultValue: number): number {
+function parseInteger(
+  searchParams: URLSearchParams,
+  key: string,
+  defaultValue: number,
+  maxValue?: number,
+): number {
   const raw = searchParams.get(key);
   if (raw === null) return defaultValue;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 1) {
     throw new ValidationError(`Invalid '${key}' query param. Expected a positive integer.`);
+  }
+  if (maxValue !== undefined && parsed > maxValue) {
+    throw new ValidationError(
+      `Invalid '${key}' query param. Must be ${maxValue} or smaller to bound response size.`,
+    );
   }
   return parsed;
 }
@@ -119,7 +130,7 @@ function parseQuery(searchParams: URLSearchParams): ParseResult {
     maxAmount,
     sortBy,
     page: parseInteger(searchParams, 'page', 1),
-    pageSize: parseInteger(searchParams, 'pageSize', 10),
+    pageSize: parseInteger(searchParams, 'pageSize', 10, MAX_PAGE_SIZE),
   };
 }
 
