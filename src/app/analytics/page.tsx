@@ -33,6 +33,7 @@ import AnalyticsTrendLineChart from '@/components/analytics/AnalyticsTrendLineCh
 import AnalyticsTrendBarChart from '@/components/analytics/AnalyticsTrendBarChart';
 import { usePageTour, type PageTourStep } from '@/hooks/usePageTour';
 import { GuidedTour } from '@/components/onboarding/GuidedTour';
+import { KeyboardShortcutsOverlay } from '@/components/shell/KeyboardShortcutsOverlay';
 
 const ANALYTICS_TOUR_STEPS: PageTourStep[] = [
   {
@@ -625,7 +626,6 @@ export default function AnalyticsPage() {
     currentStepIndex: tourStepIndex,
     currentStep: tourStep,
     totalSteps: tourTotalSteps,
-    startTour,
     nextStep: nextTourStep,
     prevStep: prevTourStep,
     skipTour,

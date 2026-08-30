@@ -25,6 +25,7 @@ import {
   CHART_X_AXIS_PROPS,
   CHART_Y_AXIS_PROPS,
   formatPlainNumberTick,
+  sanitizeChartSeries,
 } from './chartConfig';
 
 export interface HealthMetricsFeeGenerationChartProps {
@@ -61,6 +62,7 @@ const HealthMetricsFeeGenerationChartComponent: React.FC<HealthMetricsFeeGenerat
   data,
   exposure,
 }) => {
+  const safeData = React.useMemo(() => sanitizeChartSeries(data, 'feeAmount'), [data]);
   const yTickFormatter = useCallback((value: number) => formatPlainNumberTick(value), []);
 
   const renderLegend = useCallback(

@@ -27,6 +27,7 @@ import {
   CHART_Y_AXIS_PROPS,
   LIFECYCLE_REF_LINE,
   formatDrawdownAxisTick,
+  sanitizeChartSeries,
 } from './chartConfig';
 
 export interface LifecycleEvent {
@@ -77,6 +78,7 @@ const HealthMetricsDrawdownChartComponent: React.FC<HealthMetricsDrawdownChartPr
   lifecycleEvents = [],
   exposure,
 }) => {
+  const safeData = React.useMemo(() => sanitizeChartSeries(data, 'drawdownPercent'), [data]);
   const yTickFormatter = useCallback((value: number) => formatDrawdownAxisTick(value), []);
 
   const renderLegend = useCallback(
